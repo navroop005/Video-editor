@@ -14,99 +14,68 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
-        ),
-        body: Center(
-          child: VideoApp(),
-        ),
+      home: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              title: const Text('Welcome to Flutter'),
+              backgroundColor: Colors.indigo[900],
+            ),
+            body: Container(
+              color: Colors.black,
+              child: const VideoApp(),
+            ),
+          ),
+          const FullScreenView(),
+        ],
       ),
     );
   }
 }
 
 class VideoApp extends StatefulWidget {
+  const VideoApp({Key? key}) : super(key: key);
+
   @override
   _VideoAppState createState() => _VideoAppState();
 }
 
 class _VideoAppState extends State<VideoApp> {
   late VideoPlayerController _controller;
+  bool fullScreen= false;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.asset("assets/BigBuckBunny.mp4")
       ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
       });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final bool _ismuted = _controller.value.volume == 0;
-    final double _seek = _controller.value.isInitialized?(_controller.value.position.inMilliseconds/_controller.value.duration.inMilliseconds) : 0;
-
-    void setPosition(double seek){
-      setState(() {
-        _controller.seekTo(Duration(milliseconds: (seek*_controller.value.duration.inMilliseconds).toInt()));
-      });
-    }
-
     return Column(children: [
-      Center(
-        child: VideoPlayerWidget(controller: _controller),
-      ),
-      VideoProgressIndicator(
-        _controller,
-        allowScrubbing: true
-      ),
-     /* Slider(
-        value: _seek, 
-        onChanged: setPosition,
-        min: 0,
-        max: 1,
-      ),*/
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _controller.value.isPlaying
-                    ? _controller.pause()
-                    : _controller.play();
-              });
-            },
-            child: Icon(
-              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-            ),
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red[500],
-              shape: CircleBorder(),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _ismuted
-                    ? _controller.setVolume(1)
-                    : _controller.setVolume(0);
-              });
-            },
-            child: Icon(
-              _ismuted ? Icons.volume_mute : Icons.volume_up,
-            ),
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red[500],
-              shape: CircleBorder(),
-            ),
-          ),
-        ],
-      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        child: GestureDetector(
+          onDoubleTap: () =>(_fullScreenViewState.setController(_controller)),
+          onTap: () => setState(() {
+            _controller.value.isPlaying
+                ? _controller.pause()
+                : _controller.play();
+          }),
+          child: (_controller.value.isInitialized)
+                ? AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(),
+                ),
+            )
+        ),   
+      VideoPlayerControlls(controller: _controller),
     ]);
   }
 
@@ -117,26 +86,134 @@ class _VideoAppState extends State<VideoApp> {
   }
 }
 
-class VideoPlayerWidget extends StatelessWidget {
+class VideoPlayerControlls extends StatefulWidget {
   final VideoPlayerController controller;
 
-  const VideoPlayerWidget({Key? key, required this.controller})
+  const VideoPlayerControlls({Key? key, required this.controller})
       : super(key: key);
+
+  @override
+  State<VideoPlayerControlls> createState() => _VideoPlayerControllsState();
+}
+
+class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
+  bool _ismuted = false;
+  //double _seek = 0;
+  @override
+  void initState() {
+    super.initState();
+    _ismuted = widget.controller.value.volume == 0;
+    //_seek = widget.controller.value.isInitialized ? (widget.controller.value.position.inMilliseconds / widget.controller.value.duration.inMilliseconds) : 0;
+  }
+
+  /*void setPosition(double seek) {
+    setState(() {
+      widget.controller.seekTo(Duration(
+          milliseconds: (seek * widget.controller.value.duration.inMilliseconds).toInt()));
+    });
+  }*/
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        controller.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: VideoPlayer(controller),
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
+        Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          child:
+              VideoProgressIndicator(widget.controller, allowScrubbing: true),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () =>
+                setState(() {
+                  widget.controller.value.isPlaying
+                      ? widget.controller.pause()
+                      : widget.controller.play();
+                }),
+              child: Icon(
+                widget.controller.value.isPlaying
+                    ? Icons.pause
+                    : Icons.play_arrow,
+                size: 30,
               ),
-        
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[500],
+                shape: const CircleBorder(),
+                fixedSize: const Size.fromRadius(25),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _ismuted
+                      ? widget.controller.setVolume(1)
+                      : widget.controller.setVolume(0);
+                });
+              },
+              child: Icon(
+                _ismuted ? Icons.volume_mute : Icons.volume_up,
+              ),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[500],
+                shape: const CircleBorder(),
+              ),
+            ),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+_FullScreenViewState _fullScreenViewState = _FullScreenViewState();
+
+class FullScreenView extends StatefulWidget {
+  const FullScreenView({ Key? key }) : super(key: key);
+
+  @override
+  _FullScreenViewState createState() => _fullScreenViewState;
+}
+
+class _FullScreenViewState extends State<FullScreenView> {
+  VideoPlayerController _controller = VideoPlayerController.asset("");
+  double _right = 10;
+  void setController(VideoPlayerController c) async {
+    setState(() {
+      _controller = c;
+    });
+  }
+  void destroyController(){
+    setState(() {
+      _controller = VideoPlayerController.asset("");
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return (_controller.value.isInitialized == false)
+        ? Container(
+            width: 0,
+          )
+        : GestureDetector(
+            onTap: () => setState(() {
+            _controller.value.isPlaying
+                ? _controller.pause()
+                : _controller.play();
+          }),
+            onDoubleTap: destroyController,
+            child: Container(
+              color: Colors.black,
+              child: Center(
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  ),
+                ),
+              ),
+            )
     );
   }
 }
