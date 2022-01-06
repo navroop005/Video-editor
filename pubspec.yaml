@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   video_player: ^2.2.7
   file_picker: ^4.3.0
+  ffmpeg_kit_flutter_full: 4.5.1-LTS
+  path_provider: ^2.0.8
 
 dev_dependencies:
   flutter_test:

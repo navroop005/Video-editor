@@ -11,14 +11,13 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
       routes: {
         '/' : (context)=> const Home(),
-        '/editor': (context) => const Editor(),
+        '/editor': (context) => Editor(),
       },
     );
   }

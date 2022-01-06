@@ -12,7 +12,7 @@ class Home extends StatelessWidget {
       if(result.files.single.path != null){
         String path = result.files.single.path.toString();
         debugPrint(path);
-        Navigator.pushNamed(context, '/editor', arguments: path);
+      Navigator.pushNamed(context, '/editor', arguments: { 'path': path, 'name': result.files.single.name});
       }
     }
   }
