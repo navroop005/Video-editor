@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:ffmpeg_kit_flutter_full/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_full/return_code.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_player/video_player.dart';
@@ -66,7 +64,8 @@ class TrimBox extends StatefulWidget {
   final double h;
   final double maxw;
   final EditedInfo editedInfo;
-  const TrimBox({Key? key, required this.h, required this.maxw, required this.editedInfo})
+  const TrimBox(
+      {Key? key, required this.h, required this.maxw, required this.editedInfo})
       : super(key: key);
 
   @override
@@ -104,17 +103,17 @@ class _TrimBoxState extends State<TrimBox> {
               },
               onChangeEnd: (value) => trimRange(),
             ),
-                
           ),
         ),
-
       ],
     );
   }
-  void trimRange(){
+
+  void trimRange() {
     widget.editedInfo.start = widget.editedInfo.totalLength * t.start;
     widget.editedInfo.end = widget.editedInfo.totalLength * t.end;
-    debugPrint("Start: ${widget.editedInfo.start}  end: ${widget.editedInfo.end}");
+    debugPrint(
+        "Start: ${widget.editedInfo.start}  end: ${widget.editedInfo.end}");
   }
 }
 
@@ -130,9 +129,15 @@ class Thumbnails extends StatefulWidget {
 
 class _ThumbnailsState extends State<Thumbnails> {
   List<File> list = [];
+
+  @override
+  void initState() {
+    super.initState();
+    thumbnailBuilder(widget.w, widget.h);
+  }
+
   @override
   Widget build(BuildContext context) {
-    thumbnailBuilder(widget.w, widget.h);
     return Row(
       children: list.map((f) {
         return f.existsSync()
@@ -151,49 +156,37 @@ class _ThumbnailsState extends State<Thumbnails> {
     list.insert(i, File(fpath));
     FFmpegKit.executeWithArguments(arguments).then((session) async {
       final ReturnCode? returnCode = await session.getReturnCode();
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (ReturnCode.isSuccess(returnCode) && mounted) {
         setState(() {});
-      } else if (ReturnCode.isCancel(returnCode)) {
-        // CANCEL
-      } else {
-        // ERROR
       }
     });
   }
 
-  bool s = false;
   void thumbnailBuilder(double w, double h) async {
-    debugPrint("tb");
-    if (!s) {
-      s = true;
-      debugPrint(w.toString() + widget.editedInfo.toString());
+    debugPrint(w.toString() + widget.editedInfo.toString());
 
-      Directory temp = await getTemporaryDirectory();
-      Directory("${temp.path}/thumbs").createSync();
-      int n = w ~/ h;
-      for (var i = 0; i < n; i++) {
-        String outpath = temp.path + "/thumbs/$i.png";
-        debugPrint(outpath);
-        List<String> arguments = [
-          "-y",
-          "-ss",
-          (widget.editedInfo.totalLength ~/ n * i).toString(),
-          "-i",
-          widget.editedInfo.filepath,
-          "-frames:v",
-          "1",
-          outpath
-        ];
-        await ffexecute(i, arguments, outpath);
-      }
+    Directory temp = await getTemporaryDirectory();
+    Directory("${temp.path}/thumbs").createSync();
+    int n = w ~/ h;
+    for (var i = 0; i < n; i++) {
+      String outpath = temp.path + "/thumbs/$i.png";
+      debugPrint(outpath);
+      List<String> arguments = [
+        "-y",
+        "-ss",
+        (widget.editedInfo.totalLength ~/ n * i).toString(),
+        "-i",
+        widget.editedInfo.filepath,
+        "-frames:v",
+        "1",
+        outpath
+      ];
+      await ffexecute(i, arguments, outpath);
     }
   }
 
   @override
   void dispose() async {
     super.dispose();
-    list.clear();
-    s = false;
-    FFmpegKit.cancel();
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_editor/home.dart';
 import 'editor.dart';
@@ -19,6 +18,7 @@ class MyApp extends StatelessWidget {
         '/' : (context)=> const Home(),
         '/editor': (context) => Editor(),
       },
+      themeMode: ThemeMode.dark,
     );
   }
 }

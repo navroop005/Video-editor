@@ -5,24 +5,23 @@ import 'package:ffmpeg_kit_flutter_full/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter_full/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter_full/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_full/media_information.dart';
+import 'package:ffmpeg_kit_flutter_full/return_code.dart';
 import 'package:ffmpeg_kit_flutter_full/statistics.dart';
-import 'package:ffmpeg_kit_flutter_full/statistics_callback.dart';
 import 'package:ffmpeg_kit_flutter_full/stream_information.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_editor/trim_widget.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'edited_info.dart';
 import 'full_screen_viewer.dart';
 
 class Editor extends StatelessWidget {
   Editor({Key? key}) : super(key: key);
-
+  
   late final MediaInformation mediaInformation;
   final EditedInfo edited = EditedInfo();
 
@@ -304,7 +303,7 @@ class _VideoAppState extends State<VideoApp> {
         builder: (context) =>
             FullScreenView(controller: _controller, f: hideFullScreen),
         opaque: true,
-        maintainState: false);
+        maintainState: true);
     overlayState!.insert(overlayEntry);
   }
 
@@ -363,6 +362,7 @@ class _VideoAppState extends State<VideoApp> {
   void dispose() async {
     super.dispose();
     _controller.dispose();
+    Wakelock.disable();
     Directory path = await getTemporaryDirectory();
     Directory(path.path + "/thumbs").deleteSync(recursive: true);
     File(widget.editedInfo.filepath).deleteSync(recursive: true);
@@ -387,12 +387,10 @@ class VideoPlayerControlls extends StatefulWidget {
 
 class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
   bool _ismuted = false;
-  //double _seek = 0;
   @override
   void initState() {
     super.initState();
     _ismuted = widget.controller.value.volume == 0;
-    //_seek = widget.controller.value.isInitialized ? (widget.controller.value.position.inMilliseconds / widget.controller.value.duration.inMilliseconds) : 0;
   }
 
   void setPosition(bool next) {
