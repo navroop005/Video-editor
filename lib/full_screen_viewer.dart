@@ -4,9 +4,22 @@ import 'package:video_player/video_player.dart';
 
 class FullScreenView extends StatefulWidget {
   final VideoPlayerController controller;
-  final Function f;
-  const FullScreenView({Key? key, required this.controller, required this.f})
-      : super(key: key);
+  const FullScreenView({Key? key, required this.controller}) : super(key: key);
+
+  static late OverlayEntry overlayEntry;
+  static void hideFullScreen() {
+    overlayEntry.remove();
+  }
+
+  static void showFullScreen(
+      BuildContext context, VideoPlayerController controller) {
+    OverlayState? overlayState = Overlay.of(context);
+    overlayEntry = OverlayEntry(
+        builder: (context) => FullScreenView(controller: controller),
+        opaque: true,
+        maintainState: true);
+    overlayState!.insert(overlayEntry);
+  }
 
   @override
   _FullScreenViewState createState() => _FullScreenViewState();
@@ -47,7 +60,7 @@ class _FullScreenViewState extends State<FullScreenView> {
                     ? widget.controller.pause()
                     : widget.controller.play();
               }),
-              onDoubleTap: () => widget.f(),
+              onDoubleTap: () => FullScreenView.hideFullScreen(),
               onHorizontalDragStart: (details) {
                 getPosition();
                 setState(() {
@@ -67,9 +80,7 @@ class _FullScreenViewState extends State<FullScreenView> {
                   showPosition = false;
                 });
               },
-              onVerticalDragDown: (details) {
-                
-              },
+              onVerticalDragDown: (details) {},
               child: Center(
                 child: Stack(
                   children: [
@@ -86,11 +97,12 @@ class _FullScreenViewState extends State<FullScreenView> {
                         style: const TextStyle(
                             fontSize: 20,
                             color: Colors.white,
-                            shadows: [Shadow(
-                              color: Colors.black87,
-                              blurRadius: 10,
-    
-                            )],
+                            shadows: [
+                              Shadow(
+                                color: Colors.black87,
+                                blurRadius: 10,
+                              )
+                            ],
                             fontStyle: FontStyle.normal,
                             decoration: TextDecoration.none),
                       ),
@@ -117,7 +129,7 @@ class _FullScreenViewState extends State<FullScreenView> {
     int t = total.inMilliseconds;
     if (c > t) {
       c = t;
-    } 
+    }
     if (c < 0) {
       c = 0;
     }

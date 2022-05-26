@@ -15,10 +15,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Welcome to Flutter',
       routes: {
-        '/' : (context)=> const Home(),
+        '/': (context) => const Home(),
         '/editor': (context) => Editor(),
       },
       themeMode: ThemeMode.dark,
+      theme: ThemeData(
+        textTheme: Theme.of(context).textTheme.apply(
+              bodyColor: Colors.white,
+            ),
+      ),
     );
   }
 }

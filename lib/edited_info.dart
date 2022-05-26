@@ -8,6 +8,6 @@ class EditedInfo {
   EditedInfo();
   @override
   String toString() {
-    return "framerate: $frameRate, totalLength: $totalLength, filepath: $filepath, start: $start, end: $end" ;
+    return "framerate: $frameRate, totalLength: $totalLength, filepath: $filepath, start: $start, end: $end";
   }
 }
