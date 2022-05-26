@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_full_gpl/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/loading.dart';
@@ -153,23 +152,21 @@ class _ThumbnailsState extends State<Thumbnails> {
   }
 
   Future<void> ffexecute(int i, List<String> arguments, String fpath) async {
-    list.insert(i, File(fpath));
-    FFmpegKit.executeWithArguments(arguments).then((session) async {
-      final ReturnCode? returnCode = await session.getReturnCode();
-      if (ReturnCode.isSuccess(returnCode) && mounted) {
-        setState(() {});
-      }
-    });
+    await FFmpegKit.executeWithArguments(arguments);
+    setState(() {});
   }
 
   void thumbnailBuilder(double w, double h) async {
     debugPrint(w.toString() + widget.editedInfo.toString());
-
     Directory temp = await getTemporaryDirectory();
+    if (Directory("${temp.path}/thumbs").existsSync()){
+      Directory("${temp.path}/thumbs").deleteSync(recursive: true);
+    }
     Directory("${temp.path}/thumbs").createSync();
     int n = w ~/ h;
     for (var i = 0; i < n; i++) {
       String outpath = temp.path + "/thumbs/$i.png";
+      list.add(File(outpath));
       debugPrint(outpath);
       List<String> arguments = [
         "-y",
@@ -177,6 +174,8 @@ class _ThumbnailsState extends State<Thumbnails> {
         (widget.editedInfo.totalLength ~/ n * i).toString(),
         "-i",
         widget.editedInfo.filepath,
+        "-vf",
+        "scale=320:-1",
         "-frames:v",
         "1",
         outpath

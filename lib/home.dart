@@ -5,16 +5,20 @@ class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   void selectFile(BuildContext context) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.video,
-    );
-    if (result != null) {
-      if (result.files.single.path != null) {
-        String path = result.files.single.path.toString();
-        debugPrint(path);
-        Navigator.pushNamed(context, '/editor',
-            arguments: {'path': path, 'name': result.files.single.name});
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+      );
+      if (result != null) {
+        if (result.files.single.path != null) {
+          String path = result.files.single.path.toString();
+          debugPrint(path);
+          Navigator.pushNamed(context, '/editor',
+              arguments: {'path': path, 'name': result.files.single.name});
+        }
       }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

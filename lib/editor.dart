@@ -1,40 +1,71 @@
+import 'dart:io';
+
 import 'package:ffmpeg_kit_flutter_full_gpl/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/media_information.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/stream_information.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/crop_tab.dart';
 import 'package:video_editor/enhance_tab.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_editor/save_file.dart';
 import 'package:video_editor/trim_tab.dart';
+import 'package:video_player/video_player.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'edited_info.dart';
 
-class Editor extends StatelessWidget {
-  Editor({Key? key}) : super(key: key);
+class Editor extends StatefulWidget {
+  const Editor({Key? key}) : super(key: key);
 
+  @override
+  State<Editor> createState() => _EditorState();
+}
+
+class _EditorState extends State<Editor> {
   late final MediaInformation mediaInformation;
-  final EditedInfo edited = EditedInfo();
 
-  Future<bool> getMediaInfo(String path) async {
-    await FFprobeKit.getMediaInformation(path).then((session) async {
-      mediaInformation = session.getMediaInformation()!;
-    });
-    edited.frameRate = getFramerate();
-    edited.totalLength = edited.end = Duration(
-        microseconds:
-            (double.parse(mediaInformation.getMediaProperties()!['duration']) *
-                    1000000)
-                .floor());
-    return true;
+  final EditedInfo editedInfo = EditedInfo();
+
+  late VideoPlayerController _controller;
+
+  bool isInitialized = false;
+  Future<bool> initialize() async {
+    if (!isInitialized) {
+      isInitialized = true;
+      await FFprobeKit.getMediaInformation(editedInfo.filepath)
+          .then((session) async {
+        mediaInformation = session.getMediaInformation()!;
+      });
+      editedInfo.frameRate = getFramerate();
+      editedInfo.totalLength = editedInfo.end = Duration(
+          microseconds: (double.parse(
+                      mediaInformation.getMediaProperties()!['duration']) *
+                  1000000)
+              .floor());
+      _controller = VideoPlayerController.file(File(editedInfo.filepath));
+      await _controller.initialize();
+      Wakelock.enable();
+    }
+    return isInitialized;
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    _controller.dispose();
+    Wakelock.disable();
+    Directory path = await getTemporaryDirectory();
+    Directory(path.path + "/thumbs").deleteSync(recursive: true);
+    File(editedInfo.filepath).deleteSync(recursive: true);
   }
 
   @override
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-    edited.filepath = args.values.first;
-    edited.fileName = args.values.elementAt(1);
+    editedInfo.filepath = args.values.first;
+    editedInfo.fileName = args.values.elementAt(1);
     return Scaffold(
       appBar: AppBar(
         title: Text(args.values.elementAt(1)),
@@ -61,7 +92,7 @@ class Editor extends StatelessWidget {
         ],
       ),
       body: FutureBuilder(
-          future: getMediaInfo(args.values.first),
+          future: initialize(),
           builder: (context, AsyncSnapshot<bool> snapshot) {
             if (snapshot.hasData) {
               return DefaultTabController(
@@ -72,9 +103,9 @@ class Editor extends StatelessWidget {
                       child: TabBarView(
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          TrimTab(editedInfo: edited),
-                          CropTab(editedInfo: edited),
-                          EnhanceTab(editedInfo: edited)
+                          TrimTab(editedInfo: editedInfo, controller: _controller),
+                          CropTab(editedInfo: editedInfo, controller: _controller),
+                          EnhanceTab(editedInfo: editedInfo, controller: _controller),
                         ],
                       ),
                     ),
@@ -214,7 +245,7 @@ class Editor extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return SavePopup(
-          editedInfo: edited,
+          editedInfo: editedInfo,
         );
       },
     );

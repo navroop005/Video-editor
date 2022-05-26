@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Welcome to Flutter',
       routes: {
         '/': (context) => const Home(),
-        '/editor': (context) => Editor(),
+        '/editor': (context) => const Editor(),
       },
       themeMode: ThemeMode.dark,
       theme: ThemeData(
