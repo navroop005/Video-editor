@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:video_editor/utils.dart';
 import 'package:video_player/video_player.dart';
 
 class FullScreenView extends StatefulWidget {
@@ -133,23 +134,9 @@ class _FullScreenViewState extends State<FullScreenView> {
     if (c < 0) {
       c = 0;
     }
-    if (t ~/ 3600000 > 0) {
-      s += "${c ~/ 3600000}";
-    }
-    s += ((c % 3600000) ~/ 60000).toString().padLeft(2, '0') +
-        ":" +
-        ((c % 60000) ~/ 1000).toString().padLeft(2, '0') +
-        "." +
-        ((c % 1000) ~/ 10).toString().padLeft(2, '0') +
-        "/";
-    if (t ~/ 3600000 > 0) {
-      s += "${t ~/ 3600000}";
-    }
-    s += ((t % 3600000) ~/ 60000).toString().padLeft(2, '0') +
-        ":" +
-        ((t % 60000) ~/ 1000).toString().padLeft(2, '0') +
-        "." +
-        ((t % 1000) ~/ 10).toString().padLeft(2, '0');
+    s += Utils.formatTime(c, true);
+    s += ' / ';
+    s += Utils.formatTime(t, true);
     return s;
   }
 

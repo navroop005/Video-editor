@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/edited_info.dart';
+import 'package:video_editor/utils.dart';
 
 class SavePopup extends StatefulWidget {
   const SavePopup({Key? key, required this.editedInfo}) : super(key: key);
@@ -205,7 +206,7 @@ class _SavingPopupState extends State<SavingPopup> {
                   height: 10,
                 ),
                 Text(
-                  "${done.inMinutes}:${(done.inSeconds % 60).toString().padLeft(2, '0')}/${total.inMinutes}:${total.inSeconds % 60}",
+                  "${Utils.formatTime(done.inMilliseconds, false)}/${Utils.formatTime(total.inMilliseconds, false)}",
                   style: const TextStyle(color: Colors.white),
                 )
               ],
@@ -275,9 +276,11 @@ class _SavingPopupState extends State<SavingPopup> {
         doneStr = "Completed!";
       });
     } else {
-      setState(() {
-        doneStr = "Error";
-      });
+      if (mounted) {
+        setState(() {
+          doneStr = "Error";
+        });
+      }
     }
     debugPrint(doneStr);
   }

@@ -6,14 +6,13 @@ import 'package:ffmpeg_kit_flutter_full_gpl/stream_information.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/crop_tab.dart';
+import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/enhance_tab.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_editor/save_file.dart';
 import 'package:video_editor/trim_tab.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock/wakelock.dart';
-
-import 'edited_info.dart';
 
 class Editor extends StatefulWidget {
   const Editor({Key? key}) : super(key: key);

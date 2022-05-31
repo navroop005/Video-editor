@@ -1,5 +1,7 @@
+import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:video_editor/full_screen_viewer.dart';
+import 'package:video_editor/utils.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerControlls extends StatefulWidget {
@@ -37,10 +39,9 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        VideoProgressIndicator(
-          widget.controller,
-          allowScrubbing: true,
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: VideoSeek(controller: widget.controller),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -115,5 +116,63 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
         ),
       ],
     );
+  }
+}
+
+class VideoSeek extends StatefulWidget {
+  const VideoSeek({Key? key, required this.controller}) : super(key: key);
+  final VideoPlayerController controller;
+
+  @override
+  State<VideoSeek> createState() => _VideoSeekState();
+}
+
+class _VideoSeekState extends State<VideoSeek> {
+  double position = 0;
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(() {
+      setState(() {
+        position = widget.controller.value.position.inMilliseconds.toDouble();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FlutterSlider(
+      values: [position],
+      min: 0,
+      max: widget.controller.value.duration.inMilliseconds.toDouble(),
+      handlerHeight: 15,
+      tooltip: FlutterSliderTooltip(
+        boxStyle: FlutterSliderTooltipBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+          ),
+        ),
+        format: (String s) {
+          double t = double.tryParse(s) ?? 0;
+          return Utils.formatTime(t.toInt(), true);
+        },
+      ),
+      trackBar: const FlutterSliderTrackBar(
+        inactiveTrackBar: BoxDecoration(
+          color: Colors.grey,
+        ),
+      ),
+      handler: FlutterSliderHandler(child: const SizedBox()),
+      onDragging: (handlerIndex, lowerValue, upperValue) {
+        setState(() {
+          position = lowerValue;
+          setPosition();
+        });
+      },
+    );
+  }
+  void setPosition(){
+    widget.controller.seekTo(Duration(milliseconds: position.toInt()));
   }
 }

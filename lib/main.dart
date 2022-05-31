@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:video_editor/editor.dart';
 import 'package:video_editor/home.dart';
-import 'editor.dart';
-import 'home.dart';
 
 void main() {
   runApp(const MyApp());

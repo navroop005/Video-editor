@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:video_editor/edited_info.dart';
+import 'package:video_editor/full_screen_viewer.dart';
 import 'package:video_editor/trim_widget.dart';
 import 'package:video_editor/video_controls.dart';
 import 'package:video_player/video_player.dart';
-
-import 'edited_info.dart';
-import 'full_screen_viewer.dart';
 
 class TrimTab extends StatefulWidget {
   final EditedInfo editedInfo;
