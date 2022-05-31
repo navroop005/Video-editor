@@ -10,6 +10,7 @@ import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/enhance_tab.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_editor/save_file.dart';
+import 'package:video_editor/text_tab.dart';
 import 'package:video_editor/trim_tab.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock/wakelock.dart';
@@ -95,7 +96,7 @@ class _EditorState extends State<Editor> {
           builder: (context, AsyncSnapshot<bool> snapshot) {
             if (snapshot.hasData) {
               return DefaultTabController(
-                length: 3,
+                length: 4,
                 child: Column(
                   children: [
                     Expanded(
@@ -105,6 +106,7 @@ class _EditorState extends State<Editor> {
                           TrimTab(editedInfo: editedInfo, controller: _controller),
                           CropTab(editedInfo: editedInfo, controller: _controller),
                           EnhanceTab(editedInfo: editedInfo, controller: _controller),
+                          TextTab(editedInfo: editedInfo, controller: _controller)
                         ],
                       ),
                     ),
@@ -129,6 +131,9 @@ class _EditorState extends State<Editor> {
                         ),
                         Tab(
                           text: "Enhance",
+                        ),
+                        Tab(
+                          text: "Text",
                         ),
                       ],
                     ),
