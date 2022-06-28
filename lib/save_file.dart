@@ -71,7 +71,7 @@ class _SavePopupState extends State<SavePopup> {
           Row(
             children: [
               const Text("File extension: "),
-                DropdownButton(
+              DropdownButton(
                 value: extension,
                 items: extensions.map((String item) {
                   return DropdownMenuItem(
@@ -85,7 +85,8 @@ class _SavePopupState extends State<SavePopup> {
                   });
                 },
                 dropdownColor: Colors.grey[800],
-              ),            ],
+              ),
+            ],
           ),
           Row(
             children: [
@@ -124,7 +125,8 @@ class _SavePopupState extends State<SavePopup> {
                   });
                 },
                 dropdownColor: Colors.grey[800],
-              ),            ],
+              ),
+            ],
           ),
         ],
       ),
@@ -223,12 +225,43 @@ class _SavingPopupState extends State<SavingPopup> {
     );
   }
 
+  String? getVideoFilters() {
+    List<String> filters = [];
+    if (widget.editedInfo.cropLeft != 0 ||
+        widget.editedInfo.cropTop != 0 ||
+        widget.editedInfo.cropBottom != 1 ||
+        widget.editedInfo.cropRight != 1) {
+      filters.add(
+          'crop=${(widget.editedInfo.cropRight - widget.editedInfo.cropLeft)}*in_w:${(widget.editedInfo.cropBottom - widget.editedInfo.cropTop)}*in_h:${widget.editedInfo.cropLeft}*in_w:${widget.editedInfo.cropTop}*in_h');
+    }
+    if (widget.editedInfo.turns!=0) {
+      if (widget.editedInfo.turns==1) {
+        filters.add("transpose=clock");
+      }else if (widget.editedInfo.turns==2) {
+        filters.add("transpose=2,transpose=2");
+      }
+     else if (widget.editedInfo.turns==3) {
+        filters.add("transpose=cclock");
+      }
+    }
+    if (widget.editedInfo.flipX) {
+      filters.add("hflip");
+    }
+    if (widget.editedInfo.flipY) {
+      filters.add("vflip");
+    }
+    if (filters.isEmpty) {
+      return null;
+    }
+    return filters.join(",");
+  }
+
   int? sessionId;
   void savefile(BuildContext context) async {
     try {
       Directory? tmp = await getTemporaryDirectory();
       String temp = tmp.path;
-      tempfile = temp+'/'+ widget.fileName + widget.extension;
+      tempfile = temp + '/' + widget.fileName + widget.extension;
       debugPrint(tempfile);
       List<String> commands = [
         "-hwaccel",
@@ -240,13 +273,17 @@ class _SavingPopupState extends State<SavingPopup> {
         "${widget.editedInfo.end}",
         "-i",
         (widget.editedInfo.filepath),
+        "-map_metadata",
+        "0",
         "-c:v",
         widget.videocodec,
+        '-vf',
+        getVideoFilters()??"null",
         "-c:a",
         widget.audiocodec,
         tempfile!
       ];
-      debugPrint(commands.toString());
+      debugPrint("Commands: $commands");
       FFmpegKit.executeWithArgumentsAsync(
           commands, completed, null, updateStatics);
     } on PlatformException {
