@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:video_editor/crop_box.dart';
 import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/video_controls.dart';
 import 'package:video_player/video_player.dart';
@@ -34,7 +35,7 @@ class _CropTabState extends State<CropTab>
               height: MediaQuery.of(context).size.width,
               width: MediaQuery.of(context).size.width,
               child: Padding(
-                  padding: const EdgeInsets.all(30),
+                  padding: const EdgeInsets.all(20),
                   child: CropPlayer(
                     controller: widget.controller,
                     cropController: cropController,
@@ -54,6 +55,7 @@ class _CropTabState extends State<CropTab>
               CropOptions(
                 cropController: cropController,
                 editedInfo: widget.editedInfo,
+                aspectRatio: widget.controller.value.aspectRatio,
               ),
             ],
           ),
@@ -94,20 +96,12 @@ class _CropPlayerState extends State<CropPlayer>
     rotation = Tween<double>(begin: 0, end: 0).animate(animController);
     flipX = Tween<double>(begin: 0, end: 0).animate(animController);
     flipY = Tween<double>(begin: 0, end: 0).animate(animController);
-    animController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setRotate(rotation.value, rotation.value);
-        setFlipX(flipX.value, flipX.value);
-        setFlipY(flipY.value, flipY.value);
-        animController.reset();
-      }
-    });
 
     widget.cropController.addListener(() {
       setRotate(rotation.value, pi / 2 * widget.cropController.turns);
       setFlipX(flipX.value, widget.cropController.flipX ? pi : 0);
       setFlipY(flipY.value, widget.cropController.flipY ? pi : 0);
-      animController.forward();
+      animController.forward(from: 0);
     });
   }
 
@@ -115,11 +109,9 @@ class _CropPlayerState extends State<CropPlayer>
   late Animation<double> flipX;
   late Animation<double> flipY;
   void setRotate(double before, double after) {
-    if (after == before && after == pi / 2 * 4) {
-      rotation = Tween<double>(begin: 0, end: 0).animate(animController);
-    } else if (before == pi / 2 * 3 && after == 0) {
+    if (before == pi / 2 * 3 && after == 0) {
       rotation =
-          Tween<double>(begin: before, end: pi / 2 * 4).animate(animController);
+          Tween<double>(begin: -pi / 2, end: after).animate(animController);
     } else if (before == 0 && after == pi / 2 * 3) {
       rotation =
           Tween<double>(begin: pi / 2 * 4, end: after).animate(animController);
@@ -166,10 +158,10 @@ class _CropPlayerState extends State<CropPlayer>
           ? Stack(
               children: [
                 Center(
-                  child: AspectRatio(
-                    aspectRatio: widget.controller.value.aspectRatio,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: AspectRatio(
+                      aspectRatio: widget.controller.value.aspectRatio,
                       child: VideoPlayer(widget.controller),
                     ),
                   ),
@@ -204,7 +196,7 @@ class _CropPlayerState extends State<CropPlayer>
     if (details.pointerCount == 1) {
       isPan = true;
       isScale = false;
-      widget.cropController.onResizeStart!(details.localFocalPoint);
+      widget.cropController.onResizeStart(details.localFocalPoint);
     }
 
     if (details.pointerCount == 2) {
@@ -216,7 +208,7 @@ class _CropPlayerState extends State<CropPlayer>
 
   void onScaleEnd(ScaleEndDetails details) {
     if (isPan) {
-      widget.cropController.onResizeEnd!();
+      widget.cropController.onResizeEnd();
     }
     isScale = false;
     isPan = false;
@@ -224,350 +216,61 @@ class _CropPlayerState extends State<CropPlayer>
 
   void onScaleUpdate(ScaleUpdateDetails details) {
     if (isPan) {
-      widget.cropController.onResizeUpdate!(
-          details.localFocalPoint, details.focalPointDelta);
+      widget.cropController
+          .onResizeUpdate(details.localFocalPoint, details.focalPointDelta);
     } else if (isScale) {
       // onScale(details);
     }
   }
 }
 
-class CropBox extends StatefulWidget {
-  const CropBox(
-      {Key? key,
-      required this.height,
-      required this.width,
-      required this.padding,
-      required this.cropController,
-      required this.aspectRatio,
-      required this.editedInfo})
-      : super(key: key);
-  final double height;
-  final double width;
-  final double padding;
-  final double aspectRatio;
-  final CropController cropController;
-  final EditedInfo editedInfo;
-
-  @override
-  State<CropBox> createState() => _CropBoxState();
-}
-
-class _CropBoxState extends State<CropBox> {
-  late double top;
-  late double left;
-  late double right;
-  late double bottom;
-  late final double minTop;
-  late final double minLeft;
-  late final double maxRight;
-  late final double maxBottom;
-  late final double videoHeight;
-  late final double videoWidth;
-
-  final double minDistance = 40;
-
-  Widget corner = const Icon(
-    Icons.circle,
-    color: Colors.white,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.cropController.onResizeStart = onStart;
-    widget.cropController.onResizeUpdate = onUpdate;
-    widget.cropController.onResizeEnd = onEnd;
-
-    if (widget.aspectRatio > 1) {
-      videoWidth = widget.width - 2 * widget.padding;
-      videoHeight = (widget.width) / widget.aspectRatio - 2 * widget.padding;
-      minTop = (widget.height - videoHeight) / 2;
-      minLeft = widget.padding;
-      maxRight = widget.width - widget.padding;
-      maxBottom = minTop + videoHeight;
-    } else {
-      videoWidth = (widget.height) * widget.aspectRatio - 2 * widget.padding;
-      videoHeight = widget.height - 2 * widget.padding;
-      minTop = widget.padding;
-      minLeft = (widget.width - videoWidth) / 2;
-      maxRight = minLeft + videoWidth;
-      maxBottom = widget.height - widget.padding;
-    }
-
-    top = minTop;
-    left = minLeft;
-    right = maxRight;
-    bottom = maxBottom;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(width: top, color: Colors.black38),
-              left: BorderSide(width: left, color: Colors.black38),
-              right: BorderSide(
-                  width: widget.width - right, color: Colors.black38),
-              bottom: BorderSide(
-                  width: widget.height - bottom, color: Colors.black38),
-            ),
-            color: Colors.transparent,
-          ),
-        ),
-        Positioned(
-          top: top,
-          left: left,
-          width: right - left,
-          height: bottom - top,
-          child: Container(
-            decoration: BoxDecoration(
-                border: Border.all(
-              color: Colors.white,
-              width: 2,
-            )),
-          ),
-        ),
-        Positioned(
-          top: top - 10,
-          left: left - 10,
-          child: corner,
-        ),
-        Positioned(
-          top: top - 10,
-          left: right - 13,
-          child: corner,
-        ),
-        Positioned(
-          top: bottom - 13,
-          left: left - 10,
-          child: corner,
-        ),
-        Positioned(
-          top: bottom - 13,
-          left: right - 13,
-          child: corner,
-        ),
-      ],
-    );
-  }
-
-  int select = 0;
-  void onStart(Offset details) {
-    bool isTop =
-        (details.dy < top + minDistance) && (details.dy > top - minDistance);
-    bool isBottom = (details.dy < bottom + minDistance) &&
-        (details.dy > bottom - minDistance);
-    bool isLeft =
-        (details.dx < left + minDistance) && (details.dx > left - minDistance);
-    bool isRight = (details.dx < right + minDistance) &&
-        (details.dx > right - minDistance);
-
-    // debugPrint("l:$isLeft r:$isRight t:$isTop b:$isBottom");
-    if (isTop && isLeft) {
-      // top left
-      select = 1;
-    } else if (isBottom && isLeft) {
-      // botton left
-      select = 2;
-    } else if (isTop && isRight) {
-      // top right
-      select = 3;
-    } else if (isBottom && isRight) {
-      // botton right
-      select = 4;
-    } else if (isLeft) {
-      //left only
-      if ((details.dy < bottom) && (details.dy > top)) {
-        select = 5;
-      }
-    } else if (isRight) {
-      // right only
-      if ((details.dy < bottom) && (details.dy > top)) {
-        select = 6;
-      }
-    } else if (isTop) {
-      // top only
-      if ((details.dx < right) && (details.dx > left)) {
-        select = 7;
-      }
-    } else if (isBottom) {
-      // bottom only
-      if ((details.dx < right) && (details.dx > left)) {
-        select = 8;
-      }
-    }
-  }
-
-  double minHeight = 50;
-  double minWidth = 50;
-
-  void onUpdate(Offset details, Offset delta) {
-    void setTop(double y) {
-      if ((bottom - y) < minHeight) {
-        top = bottom - minHeight;
-      } else {
-        if (y >= minTop) {
-          top = y;
-        } else {
-          top = minTop;
-        }
-      }
-    }
-
-    void setLeft(double x) {
-      if ((right - x) < minWidth) {
-        left = right - minWidth;
-      } else {
-        if (x >= minLeft) {
-          left = x;
-        } else {
-          left = minLeft;
-        }
-      }
-    }
-
-    void setBottom(double y) {
-      if ((y - top) < minHeight) {
-        bottom = top + minHeight;
-      } else {
-        if (y <= maxBottom) {
-          bottom = y;
-        } else {
-          bottom = maxBottom;
-        }
-      }
-    }
-
-    void setRight(double x) {
-      if ((x - left) < minWidth) {
-        right = left + minWidth;
-      } else {
-        if (x <= maxRight) {
-          right = x;
-        } else {
-          right = maxRight;
-        }
-      }
-    }
-
-    void move(Offset offset) {
-      double _top = top + offset.dy;
-      double _left = left + offset.dx;
-      double _right = right + offset.dx;
-      double _bottom = bottom + offset.dy;
-      if (_top < minTop) {
-        top = minTop;
-        bottom += top - _top + offset.dy;
-      } else if (_bottom > maxBottom) {
-        bottom = maxBottom;
-        top += bottom - _bottom + offset.dy;
-      } else {
-        top = _top;
-        bottom = _bottom;
-      }
-      if (_left < minLeft) {
-        left = minLeft;
-        right += left - _left + offset.dx;
-      } else if (_right > maxRight) {
-        right = maxRight;
-        left += right - _right + offset.dx;
-      } else {
-        left = _left;
-        right = _right;
-      }
-    }
-
-    switch (select) {
-      case 1:
-        setState(() {
-          setTop(details.dy);
-          setLeft(details.dx);
-        });
-        break;
-      case 2:
-        setState(() {
-          setBottom(details.dy);
-          setLeft(details.dx);
-        });
-        break;
-      case 3:
-        setState(() {
-          setTop(details.dy);
-          setRight(details.dx);
-        });
-        break;
-      case 4:
-        setState(() {
-          setBottom(details.dy);
-          setRight(details.dx);
-        });
-        break;
-      case 5:
-        setState(() {
-          setLeft(details.dx);
-        });
-        break;
-      case 6:
-        setState(() {
-          setRight(details.dx);
-        });
-        break;
-      case 7:
-        setState(() {
-          setTop(details.dy);
-        });
-        break;
-      case 8:
-        setState(() {
-          setBottom(details.dy);
-        });
-        break;
-      default:
-        setState(() {
-          move(delta);
-        });
-        break;
-    }
-  }
-
-  void onEnd() {
-    select = 0;
-    widget.editedInfo.cropTop = (top - minTop) / videoHeight;
-    widget.editedInfo.cropLeft = (left - minLeft) / videoWidth;
-    widget.editedInfo.cropRight = (right - minLeft) / videoWidth;
-    widget.editedInfo.cropBottom = (bottom - minTop) / videoHeight;
-    debugPrint(
-        't: ${widget.editedInfo.cropTop}, b: ${widget.editedInfo.cropBottom}, l: ${widget.editedInfo.cropLeft}, r: ${widget.editedInfo.cropRight}');
-  }
-}
-
 class CropOptions extends StatefulWidget {
   const CropOptions(
-      {Key? key, required this.cropController, required this.editedInfo})
+      {Key? key,
+      required this.cropController,
+      required this.editedInfo,
+      required this.aspectRatio})
       : super(key: key);
   final CropController cropController;
   final EditedInfo editedInfo;
+  final double aspectRatio;
   @override
   State<CropOptions> createState() => _CropOptionsState();
 }
 
 class _CropOptionsState extends State<CropOptions> {
-  ButtonStyle buttonStyle(bool selected) {
-    return ElevatedButton.styleFrom(
-        primary: selected ? Colors.blue[800] : Colors.grey[850],
-        shape: const CircleBorder(),
-        fixedSize: const Size.square(35),
-        minimumSize: Size.zero,
-        padding: EdgeInsets.zero);
+  Map<String, double?> ratios = {
+    'Free': null,
+    '1:1': 1,
+    '4:3': 4 / 3,
+    '16:9': 16 / 9
+  };
+  late String ratio = ratios.keys.first;
+  late bool isLandscape;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.aspectRatio > 1) {
+      isLandscape = true;
+      ratios["Original"] = widget.aspectRatio;
+    } else {
+      isLandscape = false;
+      ratios["Original"] = 1 / widget.aspectRatio;
+    }
   }
 
-  List<String> ratios = ['Free', '1:1', '4:3', '16:9'];
-  late String ratio = ratios[0];
+  ButtonStyle buttonStyle(bool selected) {
+    return ElevatedButton.styleFrom(
+      primary: selected ? Colors.blue[800] : Colors.grey[850],
+      shape: const CircleBorder(),
+      fixedSize: const Size.square(35),
+      minimumSize: Size.zero,
+      padding: EdgeInsets.zero,
+      elevation: 0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -634,35 +337,78 @@ class _CropOptionsState extends State<CropOptions> {
               decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(17)),
-              height: 35,
-              width: 60,
               clipBehavior: Clip.antiAlias,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton(
-                  // Not Functional
-                  value: ratio,
-                  items: ratios.map((String item) {
-                    return DropdownMenuItem(
-                      alignment: AlignmentDirectional.center,
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      ratio = newValue!;
-                    });
-                  },
-                  alignment: AlignmentDirectional.center,
-                  dropdownColor: Colors.grey[850],
-                  iconSize: 0,
-                  borderRadius: BorderRadius.circular(10),
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
-                  itemHeight: 48,
-                  isExpanded: true,
-                ),
+              height: 35,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        value: ratio,
+                        items: ratios.keys.map((String item) {
+                          return DropdownMenuItem(
+                            alignment: AlignmentDirectional.center,
+                            value: item,
+                            child: Text(item),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            ratio = newValue!;
+                          });
+                          if (isLandscape) {
+                            widget.cropController.ratio = ratios[ratio];
+                          } else {
+                            if (ratios[ratio] != null) {
+                              widget.cropController.ratio =
+                                  1 / (ratios[ratio] ?? 1);
+                            } else {
+                              widget.cropController.ratio = null;
+                            }
+                          }
+                        },
+                        alignment: AlignmentDirectional.center,
+                        dropdownColor: Colors.grey[850],
+                        iconSize: 0,
+                        borderRadius: BorderRadius.circular(10),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                        itemHeight: 48,
+                        isExpanded: true,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 35,
+                    child: RawMaterialButton(
+                      onPressed: () {
+                        setState(() {
+                          isLandscape = !isLandscape;
+                          if (isLandscape) {
+                            widget.cropController.ratio = ratios[ratio];
+                          } else {
+                            if (ratios[ratio] != null) {
+                              widget.cropController.ratio =
+                                  1 / (ratios[ratio] ?? 1);
+                            } else {
+                              widget.cropController.ratio = null;
+                            }
+                          }
+                        });
+                      },
+                      child: Icon(
+                        isLandscape
+                            ? Icons.crop_landscape
+                            : Icons.crop_portrait,
+                        size: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ],
@@ -676,17 +422,18 @@ class CropController with ChangeNotifier {
   int _turns = 0;
   bool flipX = false;
   bool flipY = false;
-  // Not yet implemented
   double? _ratio;
+  // Not yet implemented
   double _rotation = 0;
 
-  void Function(Offset details)? onResizeStart;
-  void Function(Offset details, Offset delta)? onResizeUpdate;
-  void Function()? onResizeEnd;
+  late final void Function(Offset details) onResizeStart;
+  late final void Function(Offset details, Offset delta) onResizeUpdate;
+  late final void Function() onResizeEnd;
+  late final void Function(double? ratio) onRatioChange;
 
   set ratio(double? r) {
     _ratio = r;
-    notifyListeners();
+    onRatioChange(_ratio);
   }
 
   double? get ratio {
