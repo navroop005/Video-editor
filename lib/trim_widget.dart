@@ -34,6 +34,7 @@ class _TrimWidgetState extends State<TrimWidget> {
       return Column(
         children: [
           Stack(
+            alignment: AlignmentDirectional.center,
             children: [
               Padding(
                 padding:
@@ -61,7 +62,6 @@ class _TrimWidgetState extends State<TrimWidget> {
                 ),
               ),
             ],
-            alignment: AlignmentDirectional.center,
           ),
           TrimText(
             editedInfo: widget.editedInfo,
@@ -74,7 +74,8 @@ class _TrimWidgetState extends State<TrimWidget> {
 }
 
 class TrimText extends StatefulWidget {
-  const TrimText({Key? key, required this.editedInfo, required this.controller}) : super(key: key);
+  const TrimText({Key? key, required this.editedInfo, required this.controller})
+      : super(key: key);
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
 
@@ -102,7 +103,8 @@ class _TrimTextState extends State<TrimText> {
             child: Text(
                 Utils.formatTime(widget.editedInfo.start.inMilliseconds, true)),
             onPressed: () {
-              if (widget.controller.value.position < (widget.editedInfo.end - const Duration(milliseconds: 500))) {
+              if (widget.controller.value.position <
+                  (widget.editedInfo.end - const Duration(milliseconds: 500))) {
                 widget.editedInfo.start = widget.controller.value.position;
                 widget.editedInfo.notify();
               }
@@ -112,7 +114,9 @@ class _TrimTextState extends State<TrimText> {
             child: Text(
                 Utils.formatTime(widget.editedInfo.end.inMilliseconds, true)),
             onPressed: () {
-              if (widget.controller.value.position > (widget.editedInfo.start + const Duration(milliseconds: 500))) {
+              if (widget.controller.value.position >
+                  (widget.editedInfo.start +
+                      const Duration(milliseconds: 500))) {
                 widget.editedInfo.end = widget.controller.value.position;
                 widget.editedInfo.notify();
               }
@@ -133,11 +137,10 @@ class TrimBox extends StatefulWidget {
       : super(key: key);
 
   @override
-  _TrimBoxState createState() => _TrimBoxState();
+  State<TrimBox> createState() => _TrimBoxState();
 }
 
 class _TrimBoxState extends State<TrimBox> {
-
   @override
   void initState() {
     super.initState();
@@ -228,7 +231,7 @@ class Thumbnails extends StatefulWidget {
   final double w, h;
   final EditedInfo editedInfo;
   @override
-  _ThumbnailsState createState() => _ThumbnailsState();
+  State<Thumbnails> createState() => _ThumbnailsState();
 }
 
 class _ThumbnailsState extends State<Thumbnails> {
@@ -256,11 +259,6 @@ class _ThumbnailsState extends State<Thumbnails> {
     );
   }
 
-  Future<void> ffexecute(int i, List<String> arguments, String fpath) async {
-    await FFmpegKit.executeWithArguments(arguments);
-    setState(() {});
-  }
-
   void thumbnailBuilder(double w, double h) async {
     debugPrint(w.toString() + widget.editedInfo.toString());
     Directory temp = await getTemporaryDirectory();
@@ -270,7 +268,7 @@ class _ThumbnailsState extends State<Thumbnails> {
     Directory("${temp.path}/thumbs").createSync();
     int n = w ~/ h;
     for (var i = 0; i < n; i++) {
-      String outpath = temp.path + "/thumbs/$i.png";
+      String outpath = "${temp.path}/thumbs/$i.png";
       list.add(File(outpath));
       debugPrint(outpath);
       List<String> arguments = [
@@ -285,12 +283,13 @@ class _ThumbnailsState extends State<Thumbnails> {
         "1",
         outpath
       ];
-      await ffexecute(i, arguments, outpath);
+      await FFmpegKit.executeWithArguments(arguments);
+      if (mounted) {
+        setState(() {});
+      }
+      else{
+        break;
+      }
     }
-  }
-
-  @override
-  void dispose() async {
-    super.dispose();
   }
 }

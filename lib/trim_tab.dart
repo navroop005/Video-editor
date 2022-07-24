@@ -8,15 +8,15 @@ import 'package:video_player/video_player.dart';
 class TrimTab extends StatefulWidget {
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
-  const TrimTab({Key? key, required this.editedInfo, required this.controller}) : super(key: key);
+  const TrimTab({Key? key, required this.editedInfo, required this.controller})
+      : super(key: key);
 
   @override
-  _TrimTabState createState() => _TrimTabState();
+  State<TrimTab> createState() => _TrimTabState();
 }
 
 class _TrimTabState extends State<TrimTab>
     with AutomaticKeepAliveClientMixin<TrimTab> {
-
   @override
   bool get wantKeepAlive => true;
 

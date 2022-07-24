@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:ffmpeg_kit_flutter_full_gpl/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/media_information.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/stream_information.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/crop_tab.dart';
 import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/enhance_tab.dart';
@@ -55,9 +55,7 @@ class _EditorState extends State<Editor> {
     super.dispose();
     _controller.dispose();
     Wakelock.disable();
-    Directory path = await getTemporaryDirectory();
-    Directory(path.path + "/thumbs").deleteSync(recursive: true);
-    File(editedInfo.filepath).deleteSync(recursive: true);
+    FilePicker.platform.clearTemporaryFiles();
   }
 
   @override
@@ -69,10 +67,10 @@ class _EditorState extends State<Editor> {
     return Scaffold(
       appBar: AppBar(
         title: Text(args.values.elementAt(1)),
-        backgroundColor: Colors.indigo[900],
         actions: [
           RawMaterialButton(
             onPressed: () => saveFile(context),
+            constraints: const BoxConstraints(minHeight: 36.0),
             child: const Text(
               "SAVE",
               style: TextStyle(
@@ -80,7 +78,6 @@ class _EditorState extends State<Editor> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            constraints: const BoxConstraints(minHeight: 36.0),
           ),
           IconButton(
             onPressed: () => showInfo(args.values.first, context),
@@ -91,6 +88,7 @@ class _EditorState extends State<Editor> {
           ),
         ],
       ),
+      resizeToAvoidBottomInset: false,
       body: FutureBuilder(
           future: initialize(),
           builder: (context, AsyncSnapshot<bool> snapshot) {
@@ -103,39 +101,52 @@ class _EditorState extends State<Editor> {
                       child: TabBarView(
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          TrimTab(editedInfo: editedInfo, controller: _controller),
-                          CropTab(editedInfo: editedInfo, controller: _controller),
-                          EnhanceTab(editedInfo: editedInfo, controller: _controller),
-                          TextTab(editedInfo: editedInfo, controller: _controller)
+                          TrimTab(
+                            editedInfo: editedInfo,
+                            controller: _controller,
+                          ),
+                          CropTab(
+                            editedInfo: editedInfo,
+                            controller: _controller,
+                          ),
+                          EnhanceTab(
+                            editedInfo: editedInfo,
+                            controller: _controller,
+                          ),
+                          TextTab(
+                            editedInfo: editedInfo,
+                            controller: _controller,
+                          )
                         ],
                       ),
                     ),
-                    TabBar(
-                      indicatorColor: Colors.white,
-                      indicator: BoxDecoration(
-                        color: Colors.grey.withAlpha(70),
-                        borderRadius: BorderRadius.circular(100),
+                    Theme(
+                      data: ThemeData().copyWith(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                       ),
-                      indicatorPadding: const EdgeInsets.all(5),
-                      labelStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
-                      unselectedLabelStyle: const TextStyle(
-                        fontWeight: FontWeight.normal,
+                      child: TabBar(
+                        indicatorColor: Colors.white,
+                        indicator: BoxDecoration(
+                          color: Colors.grey.withAlpha(70),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        indicatorPadding: const EdgeInsets.all(5),
+                        tabs: const [
+                          Tab(
+                            icon: Icon(Icons.cut),
+                          ),
+                          Tab(
+                            icon: Icon(Icons.crop_rotate),
+                          ),
+                          Tab(
+                            icon: Icon(Icons.auto_awesome),
+                          ),
+                          Tab(
+                            icon: Icon(Icons.text_fields),
+                          ),
+                        ],
                       ),
-                      tabs: const [
-                        Tab(
-                          text: "Trim",
-                        ),
-                        Tab(
-                          text: "Crop",
-                        ),
-                        Tab(
-                          text: "Enhance",
-                        ),
-                        Tab(
-                          text: "Text",
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -144,7 +155,6 @@ class _EditorState extends State<Editor> {
               return const Loading();
             }
           }),
-      backgroundColor: Colors.black,
     );
   }
 
@@ -164,7 +174,7 @@ class _EditorState extends State<Editor> {
         .add("Bitrate: ${mediaInformation.getMediaProperties()!['bit_rate']}");
     Map<dynamic, dynamic> tags = mediaInformation.getMediaProperties()!['tags'];
     tags.forEach((key, value) {
-      vidInfo.add("Tag: " + key + ":" + value + "\n");
+      vidInfo.add("Tag: $key:$value\n");
     });
 
     List<StreamInformation>? streams = mediaInformation.getStreams();
@@ -203,7 +213,7 @@ class _EditorState extends State<Editor> {
 
         Map<dynamic, dynamic> tags = stream.getAllProperties()!['tags'];
         tags.forEach((key, value) {
-          vidInfo.add("Stream tag: " + key + ":" + value + "\n");
+          vidInfo.add("Stream tag: $key:$value\n");
         });
       }
     }

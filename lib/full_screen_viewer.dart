@@ -23,7 +23,7 @@ class FullScreenView extends StatefulWidget {
   }
 
   @override
-  _FullScreenViewState createState() => _FullScreenViewState();
+  State<FullScreenView> createState() => _FullScreenViewState();
 }
 
 class _FullScreenViewState extends State<FullScreenView> {
@@ -122,9 +122,9 @@ class _FullScreenViewState extends State<FullScreenView> {
   String positionDragText() {
     String s = '';
     if (netOffset >= 0) {
-      s = "+" + netOffset.toStringAsFixed(2) + "s\n";
+      s = "+${netOffset.toStringAsFixed(2)}s\n";
     } else {
-      s = netOffset.toStringAsFixed(2) + 's\n';
+      s = '${netOffset.toStringAsFixed(2)}s\n';
     }
     int c = current.inMilliseconds + (netOffset * 1000).toInt();
     int t = total.inMilliseconds;

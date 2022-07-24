@@ -55,12 +55,12 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 });
                 _ismuted = !_ismuted;
               },
-              child: Icon(
-                _ismuted ? Icons.volume_mute : Icons.volume_up,
-              ),
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[500],
                 shape: const CircleBorder(),
+              ),
+              child: Icon(
+                _ismuted ? Icons.volume_mute : Icons.volume_up,
               ),
             ),
             ElevatedButton(
@@ -68,11 +68,11 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 widget.controller.pause();
                 setPosition(false);
               },
-              child: const Icon(Icons.navigate_before),
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
+              child: const Icon(Icons.navigate_before),
             ),
             ElevatedButton(
               onPressed: () => setState(() {
@@ -80,16 +80,16 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                     ? widget.controller.pause()
                     : widget.controller.play();
               }),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[500],
+                shape: const CircleBorder(),
+                fixedSize: const Size.fromRadius(25),
+              ),
               child: Icon(
                 widget.controller.value.isPlaying
                     ? Icons.pause
                     : Icons.play_arrow,
                 size: 30,
-              ),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
-                shape: const CircleBorder(),
-                fixedSize: const Size.fromRadius(25),
               ),
             ),
             ElevatedButton(
@@ -97,20 +97,20 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 widget.controller.pause();
                 setPosition(true);
               },
-              child: const Icon(Icons.navigate_next),
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
+              child: const Icon(Icons.navigate_next),
             ),
             ElevatedButton(
               onPressed: () =>
                   FullScreenView.showFullScreen(context, widget.controller),
-              child: const Icon(Icons.fullscreen_rounded),
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
+              child: const Icon(Icons.fullscreen_rounded),
             ),
           ],
         ),
@@ -172,7 +172,8 @@ class _VideoSeekState extends State<VideoSeek> {
       },
     );
   }
-  void setPosition(){
+
+  void setPosition() {
     widget.controller.seekTo(Duration(milliseconds: position.toInt()));
   }
 }

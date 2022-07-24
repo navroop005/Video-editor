@@ -20,7 +20,8 @@ class EditedInfo with ChangeNotifier {
   String toString() {
     return "framerate: $frameRate, totalLength: $totalLength, filepath: $filepath, start: $start, end: $end";
   }
-  void notify(){
+
+  void notify() {
     notifyListeners();
   }
 }

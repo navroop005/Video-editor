@@ -165,7 +165,7 @@ class SavingPopup extends StatefulWidget {
   final String videocodec;
   final String audiocodec;
   @override
-  _SavingPopupState createState() => _SavingPopupState();
+  State<SavingPopup> createState() => _SavingPopupState();
 }
 
 class _SavingPopupState extends State<SavingPopup> {
@@ -234,13 +234,12 @@ class _SavingPopupState extends State<SavingPopup> {
       filters.add(
           'crop=${(widget.editedInfo.cropRight - widget.editedInfo.cropLeft)}*in_w:${(widget.editedInfo.cropBottom - widget.editedInfo.cropTop)}*in_h:${widget.editedInfo.cropLeft}*in_w:${widget.editedInfo.cropTop}*in_h');
     }
-    if (widget.editedInfo.turns!=0) {
-      if (widget.editedInfo.turns==1) {
+    if (widget.editedInfo.turns != 0) {
+      if (widget.editedInfo.turns == 1) {
         filters.add("transpose=clock");
-      }else if (widget.editedInfo.turns==2) {
+      } else if (widget.editedInfo.turns == 2) {
         filters.add("transpose=2,transpose=2");
-      }
-     else if (widget.editedInfo.turns==3) {
+      } else if (widget.editedInfo.turns == 3) {
         filters.add("transpose=cclock");
       }
     }
@@ -261,24 +260,26 @@ class _SavingPopupState extends State<SavingPopup> {
     try {
       Directory? tmp = await getTemporaryDirectory();
       String temp = tmp.path;
-      tempfile = temp + '/' + widget.fileName + widget.extension;
+      tempfile = '$temp/${widget.fileName}${widget.extension}';
       debugPrint(tempfile);
       List<String> commands = [
         "-hwaccel",
         "mediacodec",
         "-y",
+        // "-c:v",
+        // "h264_mediacodec",
+        "-i",
+        (widget.editedInfo.filepath),
         "-ss",
         "${widget.editedInfo.start}",
         "-to",
         "${widget.editedInfo.end}",
-        "-i",
-        (widget.editedInfo.filepath),
         "-map_metadata",
         "0",
         "-c:v",
         widget.videocodec,
         '-vf',
-        getVideoFilters()??"null",
+        getVideoFilters() ?? "null",
         "-c:a",
         widget.audiocodec,
         tempfile!
@@ -298,7 +299,6 @@ class _SavingPopupState extends State<SavingPopup> {
         done = Duration(milliseconds: s.getTime());
       });
     }
-
     debugPrint(
         "Time: ${s.getTime()}, Bitrate: ${s.getBitrate()}, Quality: ${s.getVideoQuality()}, Speed: ${s.getSpeed()}");
   }

@@ -295,29 +295,29 @@ class _CropBoxState extends State<CropBox> with SingleTickerProviderStateMixin {
     }
 
     void move(Offset offset) {
-      double _top = top + offset.dy;
-      double _left = left + offset.dx;
-      double _right = right + offset.dx;
-      double _bottom = bottom + offset.dy;
-      if (_top < minTop) {
+      double topN = top + offset.dy;
+      double leftN = left + offset.dx;
+      double rightN = right + offset.dx;
+      double bottomN = bottom + offset.dy;
+      if (topN < minTop) {
         top = minTop;
-        bottom += top - _top + offset.dy;
-      } else if (_bottom > maxBottom) {
+        bottom += top - topN + offset.dy;
+      } else if (bottomN > maxBottom) {
         bottom = maxBottom;
-        top += bottom - _bottom + offset.dy;
+        top += bottom - bottomN + offset.dy;
       } else {
-        top = _top;
-        bottom = _bottom;
+        top = topN;
+        bottom = bottomN;
       }
-      if (_left < minLeft) {
+      if (leftN < minLeft) {
         left = minLeft;
-        right += left - _left + offset.dx;
-      } else if (_right > maxRight) {
+        right += left - leftN + offset.dx;
+      } else if (rightN > maxRight) {
         right = maxRight;
-        left += right - _right + offset.dx;
+        left += right - rightN + offset.dx;
       } else {
-        left = _left;
-        right = _right;
+        left = leftN;
+        right = rightN;
       }
     }
 

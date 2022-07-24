@@ -27,26 +27,29 @@ class Home extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Video Editor"),
-        backgroundColor: Colors.purple[900],
       ),
-      backgroundColor: Colors.grey[900],
       body: RawMaterialButton(
         child: Expanded(
             child: Center(
                 child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
               'assets/video.png',
               width: 200,
+              color: Colors.white,
+            ),
+            const SizedBox(
+              height: 15,
             ),
             const Text(
               "Tap to select video",
               style: TextStyle(
                 fontSize: 30,
+                color: Colors.white,
               ),
             ),
           ],
-          mainAxisSize: MainAxisSize.min,
         ))),
         onPressed: () => selectFile(context),
       ),
