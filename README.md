@@ -1,17 +1,17 @@
-# video_editor
+# Video Editor
 
-Video Editor
+A video editor devoloped using flutter and ffmpeg.
 
-## Getting Started
+**Home screen**
+<br/>
+<img src="https://user-images.githubusercontent.com/75631504/180651206-9181fa48-1681-48e2-9f3d-2f133e95a64a.jpg" width=270/>
 
-This project is a starting point for a Flutter application.
+**Trim Tab**
+<br/>
+<img src="https://user-images.githubusercontent.com/75631504/180651378-f0f4614d-85ad-486c-bc4e-dbc595c60fd2.jpg" width=270/>
 
-A few resources to get you started if this is your first Flutter project:
+**Crop tab**
+<br/>
+<img src="https://user-images.githubusercontent.com/75631504/180651411-ae4a308e-5eb0-4ae8-be97-2bab00da6d27.jpg" width=270/>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-"# Video-edittor" 
