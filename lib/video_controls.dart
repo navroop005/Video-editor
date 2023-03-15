@@ -40,7 +40,7 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           child: VideoSeek(controller: widget.controller),
         ),
         Row(
@@ -56,7 +56,6 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 _ismuted = !_ismuted;
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
               child: Icon(
@@ -69,7 +68,6 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 setPosition(false);
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
               child: const Icon(Icons.navigate_before),
@@ -81,7 +79,6 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                     : widget.controller.play();
               }),
               style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
                 shape: const CircleBorder(),
                 fixedSize: const Size.fromRadius(25),
               ),
@@ -98,7 +95,6 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
                 setPosition(true);
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
               child: const Icon(Icons.navigate_next),
@@ -107,7 +103,6 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
               onPressed: () =>
                   FullScreenView.showFullScreen(context, widget.controller),
               style: ElevatedButton.styleFrom(
-                primary: Colors.red[500],
                 shape: const CircleBorder(),
               ),
               child: const Icon(Icons.fullscreen_rounded),
@@ -141,35 +136,64 @@ class _VideoSeekState extends State<VideoSeek> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterSlider(
-      values: [position],
-      min: 0,
-      max: widget.controller.value.duration.inMilliseconds.toDouble(),
-      handlerHeight: 15,
-      tooltip: FlutterSliderTooltip(
-        boxStyle: FlutterSliderTooltipBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.white,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              Utils.formatTime(position, true),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+                fontSize: 12,
+              ),
+            ),
+            Text(
+              Utils.formatTime(
+                widget.controller.value.duration.inMilliseconds,
+                true,
+              ),
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+          ],
+        ),
+        FlutterSlider(
+          values: [position],
+          min: 0,
+          max: widget.controller.value.duration.inMilliseconds.toDouble(),
+          handlerHeight: 15,
+          tooltip: FlutterSliderTooltip(
+            boxStyle: FlutterSliderTooltipBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+              ),
+            ),
+            format: (String s) {
+              double t = double.tryParse(s) ?? 0;
+              return Utils.formatTime(t, true);
+            },
+            textStyle: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
+          trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+              ),
+              activeTrackBar: const BoxDecoration(
+                  gradient:
+                      LinearGradient(colors: [Colors.blue, Colors.purple]))),
+          handler: FlutterSliderHandler(child: const SizedBox()),
+          onDragging: (handlerIndex, lowerValue, upperValue) {
+            setState(() {
+              position = lowerValue;
+              setPosition();
+            });
+          },
         ),
-        format: (String s) {
-          double t = double.tryParse(s) ?? 0;
-          return Utils.formatTime(t.toInt(), true);
-        },
-      ),
-      trackBar: const FlutterSliderTrackBar(
-        inactiveTrackBar: BoxDecoration(
-          color: Colors.grey,
-        ),
-      ),
-      handler: FlutterSliderHandler(child: const SizedBox()),
-      onDragging: (handlerIndex, lowerValue, upperValue) {
-        setState(() {
-          position = lowerValue;
-          setPosition();
-        });
-      },
+      ],
     );
   }
 

@@ -26,7 +26,6 @@ class _TrimTabState extends State<TrimTab>
     return Column(
       children: [
         Expanded(
-          flex: 5,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -50,8 +49,9 @@ class _TrimTabState extends State<TrimTab>
             ),
           ),
         ),
-        Expanded(
-          flex: 2,
+        SizedBox(
+          width: double.infinity,
+          height: 220,
           child: Column(
             children: [
               VideoPlayerControlls(

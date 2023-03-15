@@ -29,7 +29,6 @@ class _CropTabState extends State<CropTab>
     return Column(
       children: [
         Expanded(
-          flex: 5,
           child: Center(
             child: SizedBox(
               height: MediaQuery.of(context).size.width,
@@ -44,8 +43,9 @@ class _CropTabState extends State<CropTab>
             ),
           ),
         ),
-        Expanded(
-          flex: 2,
+        SizedBox(
+          width: double.infinity,
+          height: 220,
           child: Column(
             children: [
               VideoPlayerControlls(
@@ -262,7 +262,9 @@ class _CropOptionsState extends State<CropOptions> {
 
   ButtonStyle buttonStyle(bool selected) {
     return ElevatedButton.styleFrom(
-      primary: selected ? Colors.blue[800] : Colors.grey[850],
+      backgroundColor:
+          selected ? Theme.of(context).colorScheme.secondaryContainer : null,
+      foregroundColor: Theme.of(context).colorScheme.secondary,
       shape: const CircleBorder(),
       fixedSize: const Size.square(35),
       minimumSize: Size.zero,
@@ -286,7 +288,8 @@ class _CropOptionsState extends State<CropOptions> {
                 });
                 widget.editedInfo.turns = widget.cropController.turns;
               },
-              style: buttonStyle(widget.cropController.turns != 0),
+              style: buttonStyle(widget.cropController.turns == 3 ||
+                  widget.cropController.turns == 2),
               child: const Icon(
                 Icons.rotate_left,
                 size: 28,
@@ -299,7 +302,8 @@ class _CropOptionsState extends State<CropOptions> {
                 });
                 widget.editedInfo.turns = widget.cropController.turns;
               },
-              style: buttonStyle(widget.cropController.turns != 0),
+              style: buttonStyle(widget.cropController.turns == 1 ||
+                  widget.cropController.turns == 2),
               child: const Icon(
                 Icons.rotate_right,
                 size: 28,
@@ -335,8 +339,9 @@ class _CropOptionsState extends State<CropOptions> {
             ),
             Container(
               decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(17)),
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(17),
+              ),
               clipBehavior: Clip.antiAlias,
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -352,7 +357,12 @@ class _CropOptionsState extends State<CropOptions> {
                           return DropdownMenuItem(
                             alignment: AlignmentDirectional.center,
                             value: item,
-                            child: Text(item),
+                            child: Text(
+                              item,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
@@ -371,7 +381,6 @@ class _CropOptionsState extends State<CropOptions> {
                           }
                         },
                         alignment: AlignmentDirectional.center,
-                        dropdownColor: Colors.grey[850],
                         iconSize: 0,
                         borderRadius: BorderRadius.circular(10),
                         style: const TextStyle(
@@ -400,11 +409,13 @@ class _CropOptionsState extends State<CropOptions> {
                         });
                       },
                       child: Icon(
-                        isLandscape
+                        isLandscape ^
+                                (widget.cropController.turns == 1 ||
+                                    widget.cropController.turns == 3)
                             ? Icons.crop_landscape
                             : Icons.crop_portrait,
                         size: 24,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   )

@@ -197,12 +197,13 @@ class _TrimBoxState extends State<TrimBox> {
         boxStyle: FlutterSliderTooltipBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.secondaryContainer,
           ),
         ),
+        textStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
         format: (String s) {
           double t = double.tryParse(s) ?? 0;
-          return Utils.formatTime(t.toInt(), true);
+          return Utils.formatTime(t, true);
         },
       ),
       onDragging: (handlerIndex, lowerValue, upperValue) {
@@ -286,8 +287,7 @@ class _ThumbnailsState extends State<Thumbnails> {
       await FFmpegKit.executeWithArguments(arguments);
       if (mounted) {
         setState(() {});
-      }
-      else{
+      } else {
         break;
       }
     }

@@ -1,8 +1,8 @@
 class Utils {
-  static String formatTime(int millisec, bool splitSecs) {
+  static String formatTime(num millisec, bool splitSecs) {
     String s = "";
     if (millisec ~/ 3600000 > 0) {
-      s += "${millisec ~/ 3600000}";
+      s += "${millisec ~/ 3600000}:";
     }
     s +=
         "${((millisec % 3600000) ~/ 60000).toString().padLeft(2, '0')}:${((millisec % 60000) ~/ 1000).toString().padLeft(2, '0')}";

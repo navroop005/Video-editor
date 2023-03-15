@@ -13,8 +13,10 @@ class Home extends StatelessWidget {
         if (result.files.single.path != null) {
           String path = result.files.single.path.toString();
           debugPrint(path);
-          Navigator.pushNamed(context, '/editor',
-              arguments: {'path': path, 'name': result.files.single.name});
+          if (context.mounted) {
+            Navigator.pushNamed(context, '/editor',
+                arguments: {'path': path, 'name': result.files.single.name});
+          }
         }
       }
     } catch (e) {
@@ -28,30 +30,30 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Video Editor"),
       ),
-      body: RawMaterialButton(
-        child: Expanded(
-            child: Center(
-                child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/video.png',
-              width: 200,
-              color: Colors.white,
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            const Text(
-              "Tap to select video",
-              style: TextStyle(
-                fontSize: 30,
-                color: Colors.white,
+      body: InkWell(
+        child: SizedBox.expand(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/video.png',
+                width: 200,
+                color: Theme.of(context).primaryColorLight,
               ),
-            ),
-          ],
-        ))),
-        onPressed: () => selectFile(context),
+              const SizedBox(
+                height: 15,
+              ),
+              Text(
+                "Tap to select video",
+                style: TextStyle(
+                  color: Theme.of(context).primaryColorLight,
+                  fontSize: 25,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onTap: () => selectFile(context),
       ),
     );
   }

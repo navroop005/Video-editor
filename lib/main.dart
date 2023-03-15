@@ -17,11 +17,16 @@ class MyApp extends StatelessWidget {
         '/': (context) => const Home(),
         '/editor': (context) => const Editor(),
       },
-      themeMode: ThemeMode.system,
-      darkTheme: ThemeData.dark().copyWith(
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
         scaffoldBackgroundColor: Colors.black,
-        appBarTheme: AppBarTheme.of(context).copyWith(
-          backgroundColor: Colors.indigo[900],
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        dialogTheme: const DialogTheme(
+          backgroundColor: Colors.black87,
+          actionsPadding: EdgeInsets.fromLTRB(20, 0, 20, 10),
         ),
       ),
     );

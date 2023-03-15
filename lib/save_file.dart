@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_session.dart';
@@ -39,96 +40,93 @@ class _SavePopupState extends State<SavePopup> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Center(child: Text("Save File")),
-      titleTextStyle:
-          const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-      backgroundColor: Colors.black54,
-      actions: <Widget>[
-        TextButton(
-          child: const Text('SAVE'),
-          onPressed: () {
-            Navigator.of(context).pop();
-            onsave();
-          },
-        ),
-        TextButton(
-          child: const Text('CANCEL'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Name: "),
-          TextFormField(
-            initialValue: fileName,
-            onChanged: (value) => fileName = value,
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+      child: AlertDialog(
+        title: const Center(child: Text("Save File")),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('SAVE'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              onsave();
+            },
           ),
-          Row(
-            children: [
-              const Text("File extension: "),
-              DropdownButton(
-                value: extension,
-                items: extensions.map((String item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    extension = newValue!;
-                  });
-                },
-                dropdownColor: Colors.grey[800],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text("Video codec: "),
-              DropdownButton(
-                value: videocodec,
-                items: videocodecs.map((String item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    videocodec = newValue!;
-                  });
-                },
-                dropdownColor: Colors.grey[800],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text("Audio codec: "),
-              DropdownButton(
-                value: audiocodec,
-                items: audiocodecs.map((String item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    audiocodec = newValue!;
-                  });
-                },
-                dropdownColor: Colors.grey[800],
-              ),
-            ],
+          TextButton(
+            child: const Text('CANCEL'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
         ],
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Name: "),
+            TextFormField(
+              initialValue: fileName,
+              onChanged: (value) => fileName = value,
+            ),
+            Row(
+              children: [
+                const Text("File extension: "),
+                DropdownButton(
+                  value: extension,
+                  items: extensions.map((String item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      extension = newValue!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text("Video codec: "),
+                DropdownButton(
+                  value: videocodec,
+                  items: videocodecs.map((String item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      videocodec = newValue!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text("Audio codec: "),
+                DropdownButton(
+                  value: audiocodec,
+                  items: audiocodecs.map((String item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      audiocodec = newValue!;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -183,45 +181,44 @@ class _SavingPopupState extends State<SavingPopup> {
   @override
   Widget build(BuildContext context) {
     double donePercent = (done.inMilliseconds) / total.inMilliseconds;
-    return AlertDialog(
-      title: Center(
-          child: _isdone
-              ? Text(
-                  doneStr,
-                  style: const TextStyle(color: Colors.white),
-                )
-              : const Text(
-                  "Saving",
-                  style: TextStyle(color: Colors.white),
-                )),
-      backgroundColor: Colors.black54,
-      content: _isdone
-          ? null
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                LinearProgressIndicator(
-                  value: donePercent,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "${Utils.formatTime(done.inMilliseconds, false)}/${Utils.formatTime(total.inMilliseconds, false)}",
-                  style: const TextStyle(color: Colors.white),
-                )
-              ],
-            ),
-      actions: <Widget>[
-        TextButton(
-          child: _isdone ? const Text("Close") : const Text('Cancel'),
-          onPressed: () {
-            cancel();
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+      child: AlertDialog(
+        title: Center(
+            child: _isdone
+                ? Text(
+                    doneStr,
+                  )
+                : const Text(
+                    "Saving",
+                  )),
+        content: _isdone
+            ? null
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(
+                    value: donePercent,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "${Utils.formatTime(done.inMilliseconds, false)}/${Utils.formatTime(total.inMilliseconds, false)}",
+                  )
+                ],
+              ),
+        actions: <Widget>[
+          TextButton(
+            child: _isdone ? const Text("Close") : const Text('Cancel'),
+            onPressed: () {
+              cancel();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
     );
   }
 

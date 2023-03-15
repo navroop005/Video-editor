@@ -19,7 +19,7 @@ class FullScreenView extends StatefulWidget {
         builder: (context) => FullScreenView(controller: controller),
         opaque: true,
         maintainState: true);
-    overlayState!.insert(overlayEntry);
+    overlayState.insert(overlayEntry);
   }
 
   @override
@@ -73,7 +73,6 @@ class _FullScreenViewState extends State<FullScreenView> {
                 setState(() {
                   netOffset += details.delta.dx / 10;
                 });
-                // debugPrint(netOffset.toString());
               },
               onHorizontalDragEnd: (details) {
                 changePosition();

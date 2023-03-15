@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:ffmpeg_kit_flutter_full_gpl/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/media_information.dart';
@@ -40,7 +41,7 @@ class _EditorState extends State<Editor> {
       editedInfo.frameRate = getFramerate();
       editedInfo.totalLength = editedInfo.end = Duration(
           microseconds: (double.parse(
-                      mediaInformation.getMediaProperties()!['duration']) *
+                      mediaInformation.getDuration()!) *
                   1000000)
               .floor());
       _controller = VideoPlayerController.file(File(editedInfo.filepath));
@@ -73,17 +74,12 @@ class _EditorState extends State<Editor> {
             constraints: const BoxConstraints(minHeight: 36.0),
             child: const Text(
               "SAVE",
-              style: TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.w900,
-              ),
             ),
           ),
           IconButton(
             onPressed: () => showInfo(args.values.first, context),
             icon: const Icon(
               Icons.info_outlined,
-              color: Colors.white60,
             ),
           ),
         ],
@@ -126,9 +122,8 @@ class _EditorState extends State<Editor> {
                         highlightColor: Colors.transparent,
                       ),
                       child: TabBar(
-                        indicatorColor: Colors.white,
                         indicator: BoxDecoration(
-                          color: Colors.grey.withAlpha(70),
+                          color: Theme.of(context).canvasColor,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         indicatorPadding: const EdgeInsets.all(5),
@@ -163,16 +158,16 @@ class _EditorState extends State<Editor> {
 
     vidInfo.add("Media Information");
 
-    vidInfo.add("Path: ${mediaInformation.getMediaProperties()!['filename']}");
+    vidInfo.add("Path: ${mediaInformation.getFilename()}");
     vidInfo.add(
-        "Format: ${mediaInformation.getMediaProperties()!['format_name']}");
+        "Format: ${mediaInformation.getFormat()}");
     vidInfo
-        .add("Duration: ${mediaInformation.getMediaProperties()!['duration']}");
+        .add("Duration: ${mediaInformation.getDuration()}");
     vidInfo.add(
-        "Start time: ${mediaInformation.getMediaProperties()!['start_time']}");
+        "Start time: ${mediaInformation.getStartTime()}");
     vidInfo
-        .add("Bitrate: ${mediaInformation.getMediaProperties()!['bit_rate']}");
-    Map<dynamic, dynamic> tags = mediaInformation.getMediaProperties()!['tags'];
+        .add("Bitrate: ${mediaInformation.getBitrate()}");
+    Map<dynamic, dynamic> tags = mediaInformation.getTags()!;
     tags.forEach((key, value) {
       vidInfo.add("Tag: $key:$value\n");
     });
@@ -222,21 +217,24 @@ class _EditorState extends State<Editor> {
       context: context,
       barrierDismissible: true, // user must tap button!
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Video Information'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: vidInfo.map((e) => Text(e)).toList(),
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+          child: AlertDialog(
+            title: const Text('Video Information'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: vidInfo.map((e) => Text(e)).toList(),
+              ),
             ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
         );
       },
     );
