@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:video_editor/crop_tab.dart';
 import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/enhance_tab.dart';
+import 'package:video_editor/full_screen_viewer.dart';
 import 'package:video_editor/loading.dart';
 import 'package:video_editor/save_file.dart';
 import 'package:video_editor/text_tab.dart';
@@ -40,10 +41,9 @@ class _EditorState extends State<Editor> {
       });
       editedInfo.frameRate = getFramerate();
       editedInfo.totalLength = editedInfo.end = Duration(
-          microseconds: (double.parse(
-                      mediaInformation.getDuration()!) *
-                  1000000)
-              .floor());
+          microseconds:
+              (double.parse(mediaInformation.getDuration()!) * 1000000)
+                  .floor());
       _controller = VideoPlayerController.file(File(editedInfo.filepath));
       await _controller.initialize();
       Wakelock.enable();
@@ -65,91 +65,101 @@ class _EditorState extends State<Editor> {
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
     editedInfo.filepath = args.values.first;
     editedInfo.fileName = args.values.elementAt(1);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(args.values.elementAt(1)),
-        actions: [
-          RawMaterialButton(
-            onPressed: () => saveFile(context),
-            constraints: const BoxConstraints(minHeight: 36.0),
-            child: const Text(
-              "SAVE",
+    return WillPopScope(
+      onWillPop: () async {
+        if (FullScreenView.isFullScreen) {
+          FullScreenView.hideFullScreen();
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(args.values.elementAt(1)),
+          actions: [
+            RawMaterialButton(
+              onPressed: () => saveFile(context),
+              constraints: const BoxConstraints(minHeight: 36.0),
+              child: const Text(
+                "SAVE",
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => showInfo(args.values.first, context),
-            icon: const Icon(
-              Icons.info_outlined,
+            IconButton(
+              onPressed: () => showInfo(args.values.first, context),
+              icon: const Icon(
+                Icons.info_outlined,
+              ),
             ),
-          ),
-        ],
-      ),
-      resizeToAvoidBottomInset: false,
-      body: FutureBuilder(
-          future: initialize(),
-          builder: (context, AsyncSnapshot<bool> snapshot) {
-            if (snapshot.hasData) {
-              return DefaultTabController(
-                length: 4,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: TabBarView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          TrimTab(
-                            editedInfo: editedInfo,
-                            controller: _controller,
-                          ),
-                          CropTab(
-                            editedInfo: editedInfo,
-                            controller: _controller,
-                          ),
-                          EnhanceTab(
-                            editedInfo: editedInfo,
-                            controller: _controller,
-                          ),
-                          TextTab(
-                            editedInfo: editedInfo,
-                            controller: _controller,
-                          )
-                        ],
-                      ),
-                    ),
-                    Theme(
-                      data: ThemeData().copyWith(
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                      child: TabBar(
-                        indicator: BoxDecoration(
-                          color: Theme.of(context).canvasColor,
-                          borderRadius: BorderRadius.circular(100),
+          ],
+        ),
+        resizeToAvoidBottomInset: false,
+        body: FutureBuilder(
+            future: initialize(),
+            builder: (context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData) {
+                return DefaultTabController(
+                  length: 4,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: TabBarView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            TrimTab(
+                              editedInfo: editedInfo,
+                              controller: _controller,
+                            ),
+                            CropTab(
+                              editedInfo: editedInfo,
+                              controller: _controller,
+                            ),
+                            EnhanceTab(
+                              editedInfo: editedInfo,
+                              controller: _controller,
+                            ),
+                            TextTab(
+                              editedInfo: editedInfo,
+                              controller: _controller,
+                            )
+                          ],
                         ),
-                        indicatorPadding: const EdgeInsets.all(5),
-                        tabs: const [
-                          Tab(
-                            icon: Icon(Icons.cut),
-                          ),
-                          Tab(
-                            icon: Icon(Icons.crop_rotate),
-                          ),
-                          Tab(
-                            icon: Icon(Icons.auto_awesome),
-                          ),
-                          Tab(
-                            icon: Icon(Icons.text_fields),
-                          ),
-                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              return const Loading();
-            }
-          }),
+                      Theme(
+                        data: ThemeData().copyWith(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                        ),
+                        child: TabBar(
+                          indicator: BoxDecoration(
+                            color: Theme.of(context).canvasColor,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          indicatorPadding: const EdgeInsets.all(5),
+                          tabs: const [
+                            Tab(
+                              icon: Icon(Icons.cut),
+                            ),
+                            Tab(
+                              icon: Icon(Icons.crop_rotate),
+                            ),
+                            Tab(
+                              icon: Icon(Icons.auto_awesome),
+                            ),
+                            Tab(
+                              icon: Icon(Icons.text_fields),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return const Loading();
+              }
+            }),
+      ),
     );
   }
 
@@ -159,14 +169,10 @@ class _EditorState extends State<Editor> {
     vidInfo.add("Media Information");
 
     vidInfo.add("Path: ${mediaInformation.getFilename()}");
-    vidInfo.add(
-        "Format: ${mediaInformation.getFormat()}");
-    vidInfo
-        .add("Duration: ${mediaInformation.getDuration()}");
-    vidInfo.add(
-        "Start time: ${mediaInformation.getStartTime()}");
-    vidInfo
-        .add("Bitrate: ${mediaInformation.getBitrate()}");
+    vidInfo.add("Format: ${mediaInformation.getFormat()}");
+    vidInfo.add("Duration: ${mediaInformation.getDuration()}");
+    vidInfo.add("Start time: ${mediaInformation.getStartTime()}");
+    vidInfo.add("Bitrate: ${mediaInformation.getBitrate()}");
     Map<dynamic, dynamic> tags = mediaInformation.getTags()!;
     tags.forEach((key, value) {
       vidInfo.add("Tag: $key:$value\n");
