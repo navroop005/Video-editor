@@ -8,8 +8,7 @@ import 'package:video_player/video_player.dart';
 class TrimTab extends StatefulWidget {
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
-  const TrimTab({Key? key, required this.editedInfo, required this.controller})
-      : super(key: key);
+  const TrimTab({super.key, required this.editedInfo, required this.controller});
 
   @override
   State<TrimTab> createState() => _TrimTabState();

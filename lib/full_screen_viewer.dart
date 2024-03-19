@@ -5,7 +5,7 @@ import 'package:video_player/video_player.dart';
 
 class FullScreenView extends StatefulWidget {
   final VideoPlayerController controller;
-  const FullScreenView({Key? key, required this.controller}) : super(key: key);
+  const FullScreenView({super.key, required this.controller});
 
   static late OverlayEntry _overlayEntry;
   static bool isFullScreen = false;

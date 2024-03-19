@@ -6,7 +6,7 @@ class TextTab extends StatefulWidget {
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
 
-  const TextTab({Key? key, required this.editedInfo, required this.controller}) : super(key: key);
+  const TextTab({super.key, required this.editedInfo, required this.controller});
 
   @override
   State<TextTab> createState() => _TextTabState();

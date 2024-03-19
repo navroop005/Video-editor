@@ -13,7 +13,7 @@ import 'package:video_editor/edited_info.dart';
 import 'package:video_editor/utils.dart';
 
 class SavePopup extends StatefulWidget {
-  const SavePopup({Key? key, required this.editedInfo}) : super(key: key);
+  const SavePopup({super.key, required this.editedInfo});
   final EditedInfo editedInfo;
 
   @override
@@ -150,13 +150,12 @@ class _SavePopupState extends State<SavePopup> {
 
 class SavingPopup extends StatefulWidget {
   const SavingPopup(
-      {Key? key,
+      {super.key,
       required this.editedInfo,
       required this.fileName,
       required this.extension,
       required this.videocodec,
-      required this.audiocodec})
-      : super(key: key);
+      required this.audiocodec});
   final EditedInfo editedInfo;
   final String fileName;
   final String extension;
@@ -286,14 +285,16 @@ class _SavingPopupState extends State<SavingPopup> {
           commands, completed, null, updateStatics);
     } on PlatformException {
       debugPrint("canceled");
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
   void updateStatics(Statistics s) {
     if (mounted) {
       setState(() {
-        done = Duration(milliseconds: s.getTime());
+        done = Duration(milliseconds: s.getTime().round());
       });
     }
     debugPrint(

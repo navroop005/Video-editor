@@ -10,8 +10,7 @@ class CropTab extends StatefulWidget {
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
 
-  const CropTab({Key? key, required this.editedInfo, required this.controller})
-      : super(key: key);
+  const CropTab({super.key, required this.editedInfo, required this.controller});
 
   @override
   State<CropTab> createState() => _CropTabState();
@@ -67,11 +66,10 @@ class _CropTabState extends State<CropTab>
 
 class CropPlayer extends StatefulWidget {
   const CropPlayer(
-      {Key? key,
+      {super.key,
       required this.controller,
       required this.cropController,
-      required this.editedInfo})
-      : super(key: key);
+      required this.editedInfo});
 
   final VideoPlayerController controller;
   final EditedInfo editedInfo;
@@ -226,11 +224,10 @@ class _CropPlayerState extends State<CropPlayer>
 
 class CropOptions extends StatefulWidget {
   const CropOptions(
-      {Key? key,
+      {super.key,
       required this.cropController,
       required this.editedInfo,
-      required this.aspectRatio})
-      : super(key: key);
+      required this.aspectRatio});
   final CropController cropController;
   final EditedInfo editedInfo;
   final double aspectRatio;

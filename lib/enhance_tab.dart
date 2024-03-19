@@ -7,8 +7,7 @@ class EnhanceTab extends StatefulWidget {
   final VideoPlayerController controller;
 
   const EnhanceTab(
-      {Key? key, required this.editedInfo, required this.controller})
-      : super(key: key);
+      {super.key, required this.editedInfo, required this.controller});
 
   @override
   State<EnhanceTab> createState() => _EnhanceTabState();

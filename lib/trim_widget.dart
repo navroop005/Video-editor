@@ -1,6 +1,11 @@
 import 'dart:io';
 
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/handler_animation.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/tooltip/tooltip_box.dart';
+import 'package:another_xlider/models/trackbar.dart';
 import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,8 +18,7 @@ class TrimWidget extends StatefulWidget {
   final VideoPlayerController controller;
   final EditedInfo editedInfo;
   const TrimWidget(
-      {Key? key, required this.controller, required this.editedInfo})
-      : super(key: key);
+      {super.key, required this.controller, required this.editedInfo});
 
   @override
   State<TrimWidget> createState() => _TrimWidgetState();
@@ -74,8 +78,7 @@ class _TrimWidgetState extends State<TrimWidget> {
 }
 
 class TrimText extends StatefulWidget {
-  const TrimText({Key? key, required this.editedInfo, required this.controller})
-      : super(key: key);
+  const TrimText({super.key, required this.editedInfo, required this.controller});
   final EditedInfo editedInfo;
   final VideoPlayerController controller;
 
@@ -133,8 +136,7 @@ class TrimBox extends StatefulWidget {
   final double w;
   final EditedInfo editedInfo;
   const TrimBox(
-      {Key? key, required this.h, required this.w, required this.editedInfo})
-      : super(key: key);
+      {super.key, required this.h, required this.w, required this.editedInfo});
 
   @override
   State<TrimBox> createState() => _TrimBoxState();
@@ -227,8 +229,7 @@ class _TrimBoxState extends State<TrimBox> {
 
 class Thumbnails extends StatefulWidget {
   const Thumbnails(
-      {Key? key, required this.h, required this.w, required this.editedInfo})
-      : super(key: key);
+      {super.key, required this.h, required this.w, required this.editedInfo});
   final double w, h;
   final EditedInfo editedInfo;
   @override

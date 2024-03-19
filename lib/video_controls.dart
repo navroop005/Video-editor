@@ -1,4 +1,8 @@
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/tooltip/tooltip_box.dart';
+import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_editor/full_screen_viewer.dart';
 import 'package:video_editor/utils.dart';
@@ -8,8 +12,7 @@ class VideoPlayerControlls extends StatefulWidget {
   final VideoPlayerController controller;
   final double framerate;
   const VideoPlayerControlls(
-      {Key? key, required this.controller, required this.framerate})
-      : super(key: key);
+      {super.key, required this.controller, required this.framerate});
 
   @override
   State<VideoPlayerControlls> createState() => _VideoPlayerControllsState();
@@ -81,6 +84,7 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),
                 fixedSize: const Size.fromRadius(25),
+                padding: const EdgeInsets.all(0),
               ),
               child: Icon(
                 widget.controller.value.isPlaying
@@ -115,7 +119,7 @@ class _VideoPlayerControllsState extends State<VideoPlayerControlls> {
 }
 
 class VideoSeek extends StatefulWidget {
-  const VideoSeek({Key? key, required this.controller}) : super(key: key);
+  const VideoSeek({super.key, required this.controller});
   final VideoPlayerController controller;
 
   @override

@@ -6,14 +6,13 @@ import 'package:video_editor/edited_info.dart';
 
 class CropBox extends StatefulWidget {
   const CropBox(
-      {Key? key,
+      {super.key,
       required this.height,
       required this.width,
       required this.padding,
       required this.cropController,
       required this.aspectRatio,
-      required this.editedInfo})
-      : super(key: key);
+      required this.editedInfo});
   final double height;
   final double width;
   final double padding;

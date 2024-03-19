@@ -15,10 +15,10 @@ import 'package:video_editor/save_file.dart';
 import 'package:video_editor/text_tab.dart';
 import 'package:video_editor/trim_tab.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class Editor extends StatefulWidget {
-  const Editor({Key? key}) : super(key: key);
+  const Editor({super.key});
 
   @override
   State<Editor> createState() => _EditorState();
@@ -46,7 +46,7 @@ class _EditorState extends State<Editor> {
                   .floor());
       _controller = VideoPlayerController.file(File(editedInfo.filepath));
       await _controller.initialize();
-      Wakelock.enable();
+      WakelockPlus.enable();
     }
     return isInitialized;
   }
@@ -55,7 +55,7 @@ class _EditorState extends State<Editor> {
   void dispose() async {
     super.dispose();
     _controller.dispose();
-    Wakelock.disable();
+    WakelockPlus.disable();
     FilePicker.platform.clearTemporaryFiles();
   }
 
@@ -65,13 +65,13 @@ class _EditorState extends State<Editor> {
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
     editedInfo.filepath = args.values.first;
     editedInfo.fileName = args.values.elementAt(1);
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
         if (FullScreenView.isFullScreen) {
           FullScreenView.hideFullScreen();
-          return false;
         } else {
-          return true;
+          Navigator.pop(context);
         }
       },
       child: Scaffold(
